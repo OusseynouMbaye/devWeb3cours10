@@ -3,12 +3,15 @@ require_once(PATH_CORE . "/dbModel.php");
 require_once(PATH_DTO . "/userDTO.php");
 require_once(PATH_PARSER . "/userParser.php");
 require_once(PATH_EXCEPTION . "/noUserFoundException.php");
+require_once(PATH_EXCEPTION . "/InsertUserException.php");
+
 class UserModel extends dbModel
 {
     const GET_ALL_USERS_PROC_NAME = "get_all_users";
     const GET_USER_BY_ID_PROC_NAME = "get_user_by_id";
     const ADD_USER_PROC_NAME = "add_user";
     const DELETE_USER_PROC_NAME = "delete_user";
+    const Get_USER_CREDENTIALS_FROM_PROC_NAME = "get_user_credentials_from_email";
 
     public function get_all_users(): array
     {
@@ -33,6 +36,12 @@ class UserModel extends dbModel
     public function get_user(int $user_id)
     {
         //exercice cours 2
+        // $result = $this->mysqli->query("CALL ".self::GET_ALL_USERS_PROC_NAME."(".$this);
+        // if($row = $result->fetch_assoc()){
+        //     return UserParser::
+
+        // }
+        // die("NOT FOUND");
 
     }
 
@@ -71,6 +80,7 @@ class UserModel extends dbModel
             $statementHandle->execute([
                 "first_name" => $user->get_first_name(),
                 "last_name" => $user->get_last_name(),
+               // "hash"=>$user->password_hash();
                 "email" => $user->get_email(),
                 "postal_code" => $user->get_postal_code(),
                 "phone_number" => $user->get_phone_number(),
@@ -92,5 +102,22 @@ class UserModel extends dbModel
             }
             $statement->close();
         }
+    }
+    public function get_user_credentials_from_email($email)
+    {
+        # code...
+        $pdo = $this->get_pdo_instance();
+        $statementHandle = $pdo->prepare("CALL " . self::Get_USER_CREDENTIALS_FROM_PROC_NAME . "(:email)");
+        $statementHandle->execute(([
+            "email" => $email,
+
+        ]));
+
+        $users = $statementHandle->fetch(PDO::FETCH_ASSOC);
+        if ($users === false) {
+
+            throw new noUserFoundException();
+        }
+        return $users;
     }
 }
