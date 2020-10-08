@@ -33,34 +33,53 @@ class UserModel extends dbModel
     public function get_user(int $user_id)
     {
         //exercice cours 2
+
     }
 
     public function add_user($user)
     {
-        if ($statement = $this->mysqli->prepare("CALL " . self::ADD_USER_PROC_NAME . "(?,?,?,?,?,?,?)")) {
-            $first_name = $user->get_first_name();
-            $last_name = $user->get_last_name();
-            $email = $user->get_email();
-            $postal_code = $user->get_postal_code();
-            $phone_number = $user->get_phone_number();
-            $address = $user->get_address();
-            $city = $user->get_city();
+        // if ($statement = $this->mysqli->prepare("CALL " . self::ADD_USER_PROC_NAME . "(?,?,?,?,?,?,?)")) {
+        //     $first_name = $user->get_first_name();
+        //     $last_name = $user->get_last_name();
+        //     $email = $user->get_email();
+        //     $postal_code = $user->get_postal_code();
+        //     $phone_number = $user->get_phone_number();
+        //     $address = $user->get_address();
+        //     $city = $user->get_city();
 
-            $age = $user->get_age();
-            $statement->bind_param(
-                'sssssss',
-                $first_name,
-                $last_name,
-                $email,
-                $postal_code,
-                $phone_number,
-                $address,
-                $city
-            );
-            if (!$statement->execute()) {
-                //todo error management
-            }
-            $statement->close();
+        //     $age = $user->get_age();
+        //     $statement->bind_param(
+        //         'sssssss',
+        //         $first_name,
+        //         $last_name,
+        //         $email,
+        //         $postal_code,
+        //         $phone_number,
+        //         $address,
+        //         $city
+        //     );
+        //     if (!$statement->execute()) {
+        //         //todo error management
+        //     }
+        //     $statement->close();
+        // }
+        $pdo = $this->get_pdo_instance();
+        $statementHandle = $pdo->prepare("CALL " . self::ADD_USER_PROC_NAME .
+            "(:first_name,:last_name,:email,:postal_code,:phone_number,:address,:city)"); //prepare le statement
+        //il faut l'executer
+        try {
+            $statementHandle->execute([
+                "first_name" => $user->get_first_name(),
+                "last_name" => $user->get_last_name(),
+                "email" => $user->get_email(),
+                "postal_code" => $user->get_postal_code(),
+                "phone_number" => $user->get_phone_number(),
+                "address" => $user->get_address(),
+                "city" => $user->get_city()
+
+            ]);
+        } catch (PDOException $e) {
+            throw new InsertUserException();
         }
     }
 

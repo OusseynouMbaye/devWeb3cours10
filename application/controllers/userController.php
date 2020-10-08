@@ -48,11 +48,17 @@
         }
 
         private function show_all_user(){
+            try{
             $users = $this->user_model->get_all_users();
             $data = array("users"=>$users);
             $view = new View("usersView.php");
             $content = $view->render($data);
             echo $this->render_template_with_content(self::USERS_PAGE_TITLE, $content);
+            }
+            catch (noUserFoundException $e)
+            {
+                $this->render_error("Aucun usager trouvé.", "Aucun usager trouvé.");
+            }
         }
 
         private function show_add_user(){
@@ -67,4 +73,3 @@
         }
 
     }
-?>
